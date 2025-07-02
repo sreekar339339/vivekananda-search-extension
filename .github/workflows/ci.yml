@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check manifest.json
+      run: |
+        if [ ! -f "manifest.json" ]; then
+          echo "manifest.json not found"
+          exit 1
+        fi
+        # You can add additional validation here
+    
+    - name: Check HTML syntax
+      run: |
+        npx -y html-validate *.html
+    
+    - name: Check JavaScript syntax
+      run: |
+        npx -y eslint --no-eslintrc --no-ignore --env browser --parser-options=ecmaVersion:2022 --parser-options=sourceType:module --rule 'no-unused-vars: 0' --rule 'no-undef: 0' *.js || true

@@ -1,0 +1,31 @@
+{
+  "name": "vivekananda-search-extension",
+  "version": "1.0.0",
+  "description": "A browser extension to search the complete works of Swami Vivekananda",
+  "private": true,
+  "scripts": {
+    "build": "echo \"No build process implemented yet\" && exit 0",
+    "test": "echo \"No tests implemented yet\" && exit 0",
+    "lint": "echo \"No linting implemented yet\" && exit 0",
+    "package:chrome": "echo \"No packaging process implemented yet\" && exit 0",
+    "package:firefox": "echo \"No packaging process implemented yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/vivekananda-search-extension.git"
+  },
+  "keywords": [
+    "browser-extension",
+    "vivekananda",
+    "search",
+    "spirituality",
+    "hinduism"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/vivekananda-search-extension/issues"
+  },
+  "homepage": "https://github.com/yourusername/vivekananda-search-extension#readme",
+  "devDependencies": {}
+}

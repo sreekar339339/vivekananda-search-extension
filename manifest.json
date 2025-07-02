@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Ramakrishna Vivekananda Search",
+  "version": "1.0",
+  "description": "Search the Ramakrishna Vivekananda website.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://www.ramakrishnavivekananda.info/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Ramakrishna Vivekananda Search",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png"
+    }
+  },
+  "icons": {
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.ramakrishnavivekananda.info/*"
+      ],
+      "js": [
+        "content_script.js"
+      ]
+    }
+  ]
+}
