@@ -33,6 +33,9 @@
     "url": "https://github.com/yourusername/vivekananda-search-extension/issues"
   },
   "homepage": "https://github.com/yourusername/vivekananda-search-extension#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "lint-staged": {
     "src/**/*.js": [
       "eslint --fix",
@@ -50,11 +53,17 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
+    "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",
     "html-validate": "^9.7.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^15.2.2",
     "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "@eslint/config-array": "^0.21.0",
+    "@eslint/object-schema": "^2.1.6",
+    "glob": "^11.0.3",
+    "rimraf": "^6.0.1"
   }
 }
