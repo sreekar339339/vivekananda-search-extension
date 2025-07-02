@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-07-02
 
 ### Added
+
 - Initial release of the extension
 - Deep search functionality for the Ramakrishna Vivekananda website
 - Real-time search results streaming

@@ -1,0 +1,23 @@
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+build/
+*.min.js
+*.min.css
+
+# Package files
+package-lock.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Generated images
+images/
+
+# Git files
+.git/
+.github/

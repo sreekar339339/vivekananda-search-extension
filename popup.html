@@ -1,193 +1,227 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search the Complete Works of Swami Vivekananda</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 1rem;
-            color: #333;
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 1rem;
+        color: #333;
+      }
+      .container {
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        color: #2c3e50;
+        margin: 0;
+        padding-bottom: 1.5rem;
+      }
+      .search-container {
+        display: flex;
+        gap: 0.5rem;
+        align-items: stretch;
+      }
+      #search-button,
+      #stop-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.8rem;
+        font-size: 1rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        transition: background-color 0.3s;
+      }
+      #search-button {
+        background-color: #3498db;
+      }
+      #search-button:hover {
+        background-color: #2980b9;
+      }
+      #search-button:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+      }
+      #stop-button {
+        background-color: #e74c3c;
+      }
+      #stop-button:hover {
+        background-color: #c0392b;
+      }
+      .input-wrapper {
+        position: relative;
+        flex-grow: 1;
+      }
+      #search-input {
+        width: 100%;
+        height: 100%;
+        padding: 0.8rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 2;
+        background-color: transparent;
+      }
+      #progress-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0;
+        background-color: rgba(46, 204, 113, 0.3);
+        border-radius: 4px;
+        transition: width 0.1s linear;
+        z-index: 1;
+      }
+      #results-counter {
+        margin-top: 0.5rem;
+        display: block;
+        font-style: italic;
+        color: #27ae60;
+        font-size: 1.1rem;
+      }
+      .loading-indicator {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        color: #777;
+      }
+      .loading-indicator .spinner {
+        width: 1rem;
+        height: 1rem;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 0.5rem;
+      }
+      #results {
+        margin-top: 1.5rem;
+        text-align: center;
+      }
+      #results div {
+        background-color: #fafafa;
+        padding: 1rem;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+      #results h3 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 1.3rem;
+      }
+      #results h3 a {
+        color: #2980b9;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+      }
+      .external-link-icon {
+        width: 0.8em;
+        height: 0.8em;
+      }
+      #results p {
+        font-size: 1.1rem;
+      }
+      #results b {
+        background-color: #ffd700;
+        color: #000;
+        padding: 0.1rem 0.2rem;
+        border-radius: 3px;
+      }
+      #scroll-to-top-btn {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 30px;
+        z-index: 99;
+        border: none;
+        outline: none;
+        background-color: #3498db;
+        color: white;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 10px;
+      }
+      #scroll-to-top-btn:hover {
+        background-color: #2980b9;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-        .container {
-            margin: 0 auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
+        100% {
+          transform: rotate(360deg);
         }
-        h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            color: #2c3e50;
-            margin: 0;
-            padding-bottom: 1.5rem;
-        }
-        .search-container {
-            display: flex;
-            gap: 0.5rem;
-            align-items: stretch;
-        }
-        #search-button, #stop-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.8rem;
-            font-size: 1rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        #search-button {
-            background-color: #3498db;
-        }
-        #search-button:hover {
-            background-color: #2980b9;
-        }
-        #search-button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        #stop-button {
-            background-color: #e74c3c;
-        }
-        #stop-button:hover {
-            background-color: #c0392b;
-        }
-        .input-wrapper {
-            position: relative;
-            flex-grow: 1;
-        }
-        #search-input {
-            width: 100%;
-            height: 100%;
-            padding: 0.8rem;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 2;
-            background-color: transparent;
-        }
-        #progress-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0;
-            background-color: rgba(46, 204, 113, 0.3);
-            border-radius: 4px;
-            transition: width 0.1s linear;
-            z-index: 1;
-        }
-        #results-counter {
-            margin-top: 0.5rem;
-            display: block;
-            font-style: italic;
-            color: #27ae60;
-            font-size: 1.1rem;
-        }
-        .loading-indicator {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            color: #777;
-        }
-        .loading-indicator .spinner {
-            width: 1rem;
-            height: 1rem;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 0.5rem;
-        }
-        #results {
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-        #results div {
-            background-color: #fafafa;
-            padding: 1rem;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-        }
-        #results h3 {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 1.3rem;
-        }
-        #results h3 a {
-            color: #2980b9;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.2rem;
-        }
-        .external-link-icon {
-            width: 0.8em;
-            height: 0.8em;
-        }
-        #results p {
-            font-size: 1.1rem;
-        }
-        #results b {
-            background-color: #FFD700;
-            color: #000;
-            padding: 0.1rem 0.2rem;
-            border-radius: 3px;
-        }
-        #scroll-to-top-btn {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 30px;
-            z-index: 99;
-            border: none;
-            outline: none;
-            background-color: #3498db;
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            border-radius: 10px;
-        }
-        #scroll-to-top-btn:hover {
-            background-color: #2980b9;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Search from<br>The Complete Works of Swami Vivekananda</h1>
-        <form id="search-form" class="search-container">
-            <button type="submit" id="search-button"><span>Search</span></button>
-            <button type="button" id="stop-button" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg></button>
-            <div class="input-wrapper">
-                <div id="progress-bar"></div>
-                <input type="text" id="search-input" placeholder="Enter search term">
-            </div>
-        </form>
-        <div id="results-counter"></div>
-        <div id="results"></div>
-        <div class="loading-indicator">
-            <div class="spinner"></div>
-            <span>Loading...</span>
+      <h1>Search from<br />The Complete Works of Swami Vivekananda</h1>
+      <form id="search-form" class="search-container">
+        <button type="submit" id="search-button"><span>Search</span></button>
+        <button type="button" id="stop-button" style="display: none">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          </svg>
+        </button>
+        <div class="input-wrapper">
+          <div id="progress-bar"></div>
+          <input type="text" id="search-input" placeholder="Enter search term" />
         </div>
+      </form>
+      <div id="results-counter"></div>
+      <div id="results"></div>
+      <div class="loading-indicator">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+      </div>
     </div>
-    <button id="scroll-to-top-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    <button type="button" id="scroll-to-top-btn" aria-label="Scroll to top">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </svg>
+    </button>
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>

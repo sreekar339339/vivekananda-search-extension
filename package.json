@@ -6,9 +6,15 @@
   "scripts": {
     "build": "echo \"No build process implemented yet\" && exit 0",
     "test": "echo \"No tests implemented yet\" && exit 0",
-    "lint": "echo \"No linting implemented yet\" && exit 0",
+    "lint": "npm run lint:html && npm run lint:js",
+    "lint:html": "npx html-validate *.html",
+    "lint:js": "npx eslint *.js",
+    "format": "prettier --write '**/*.{js,html,json,md}'",
+    "format:check": "prettier --check '**/*.{js,html,json,md}'",
     "package:chrome": "echo \"No packaging process implemented yet\" && exit 0",
-    "package:firefox": "echo \"No packaging process implemented yet\" && exit 0"
+    "package:firefox": "echo \"No packaging process implemented yet\" && exit 0",
+    "prepare": "husky",
+    "precommit": "lint-staged"
   },
   "repository": {
     "type": "git",
@@ -27,5 +33,25 @@
     "url": "https://github.com/yourusername/vivekananda-search-extension/issues"
   },
   "homepage": "https://github.com/yourusername/vivekananda-search-extension#readme",
-  "devDependencies": {}
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.html": [
+      "html-validate",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.5",
+    "html-validate": "^9.7.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2"
+  }
 }

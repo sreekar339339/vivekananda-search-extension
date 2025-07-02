@@ -49,6 +49,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
 
+This project uses Git hooks for code quality. See [HOOKS.md](HOOKS.md) for more information about the pre-commit and pre-push hooks.
+
 ## Acknowledgments
 
 - All content searched by this extension is from [ramakrishnavivekananda.info](https://www.ramakrishnavivekananda.info/)

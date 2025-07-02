@@ -3,15 +3,8 @@
   "name": "Ramakrishna Vivekananda Search",
   "version": "1.0",
   "description": "Search the Ramakrishna Vivekananda website.",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-    "offscreen"
-  ],
-  "host_permissions": [
-    "https://www.ramakrishnavivekananda.info/"
-  ],
+  "permissions": ["activeTab", "scripting", "storage", "offscreen"],
+  "host_permissions": ["https://www.ramakrishnavivekananda.info/"],
   "background": {
     "service_worker": "background.js"
   },
@@ -28,12 +21,8 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.ramakrishnavivekananda.info/*"
-      ],
-      "js": [
-        "content_script.js"
-      ]
+      "matches": ["https://www.ramakrishnavivekananda.info/*"],
+      "js": ["content_script.js"]
     }
   ]
 }

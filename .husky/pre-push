@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+echo "Running full lint and tests before push..."
+npm run lint && npm test
