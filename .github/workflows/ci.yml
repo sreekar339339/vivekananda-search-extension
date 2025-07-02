@@ -10,20 +10,48 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
     
     - name: Check manifest.json
       run: |
-        if [ ! -f "manifest.json" ]; then
-          echo "manifest.json not found"
+        if [ ! -f "src/manifest.json" ]; then
+          echo "src/manifest.json not found"
           exit 1
         fi
-        # You can add additional validation here
+        echo "Validating manifest.json structure..."
+        npx -y ajv-cli validate -s https://json.schemastore.org/chrome-manifest.json -d src/manifest.json
     
     - name: Check HTML syntax
-      run: |
-        npx -y html-validate *.html
+      run: npm run lint:html
     
     - name: Check JavaScript syntax
+      run: npm run lint:js
+      
+    - name: Run Prettier check
+      run: npm run format:check
+      
+    - name: Build extension
+      run: npm run build
+      
+    - name: Package extension
       run: |
-        npx -y eslint --no-eslintrc --no-ignore --env browser --parser-options=ecmaVersion:2022 --parser-options=sourceType:module --rule 'no-unused-vars: 0' --rule 'no-undef: 0' *.js || true
+        npm run package:chrome
+        npm run package:firefox
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: extension-packages
+        path: |
+          vivekananda-search-chrome.zip
+          vivekananda-search-firefox.zip

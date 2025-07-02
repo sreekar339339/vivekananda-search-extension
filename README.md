@@ -13,20 +13,44 @@ A browser extension that allows you to search the complete works of Swami Viveka
 
 ## Installation
 
-### Chrome/Edge/Brave (Manual Installation)
+### Option 1: Web Store Installation (Recommended)
 
-1. Download or clone this repository
+#### Chrome, Edge, Brave (Coming Soon)
+
+1. Visit the [Chrome Web Store page for this extension](#) (link will be available once published)
+2. Click "Add to Chrome"
+3. Confirm by clicking "Add extension" in the popup
+
+#### Firefox (Coming Soon)
+
+1. Visit the [Firefox Add-ons page for this extension](#) (link will be available once published)
+2. Click "Add to Firefox"
+3. Click "Add" in the confirmation dialog
+
+### Option 2: Manual Installation
+
+#### From Release Package
+
+1. Go to the [Releases page](https://github.com/sreekar339339/vivekananda-search-extension/releases) on GitHub
+2. Download the latest release package for your browser (`vivekananda-search-chrome.zip` or `vivekananda-search-firefox.zip`)
+3. Follow the browser-specific instructions below
+
+#### Chrome/Edge/Brave
+
+1. Extract the downloaded zip file (or clone this repository)
 2. Open your browser and go to `chrome://extensions`
 3. Enable "Developer mode" using the toggle in the top-right corner
-4. Click "Load unpacked" and select the `vivekananda-search-extension/src` folder
+4. Click "Load unpacked" and select the extracted folder (or `vivekananda-search-extension/src` if using the repository)
 5. The extension is now installed and ready to use
 
-### Firefox (Manual Installation)
+#### Firefox
 
-1. Download or clone this repository
+1. Extract the downloaded zip file (or clone this repository)
 2. Open Firefox and go to `about:debugging#/runtime/this-firefox`
-3. Click "Load Temporary Add-on" and select the `manifest.json` file within the `vivekananda-search-extension/src` folder
+3. Click "Load Temporary Add-on" and select the `manifest.json` file within the extracted folder (or `vivekananda-search-extension/src` if using the repository)
 4. The extension is now installed temporarily (it will be removed when you close Firefox)
+
+> **Note**: For permanent installation in Firefox, the extension needs to be installed from the Mozilla Add-ons site once published.
 
 ## Usage
 
