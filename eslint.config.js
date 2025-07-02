@@ -9,7 +9,7 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.browser,
-        chrome: 'readonly'
+        chrome: 'readonly',
       },
     },
     rules: {
@@ -19,5 +19,5 @@ export default [
       'no-useless-escape': 'off',
     },
     ignores: ['node_modules/', 'dist/', 'build/'],
-  }
+  },
 ];
