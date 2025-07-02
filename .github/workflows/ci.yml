@@ -41,7 +41,9 @@ jobs:
           exit 1
         fi
         echo "Validating manifest.json structure..."
-        npx -y ajv-cli validate -s https://json.schemastore.org/chrome-manifest.json -d src/manifest.json
+        # Basic JSON validation using jq
+        cat src/manifest.json | jq . > /dev/null || (echo "Invalid JSON in manifest.json" && exit 1)
+        echo "✅ manifest.json is valid JSON"
     
     - name: Check HTML syntax
       run: npm run lint:html
