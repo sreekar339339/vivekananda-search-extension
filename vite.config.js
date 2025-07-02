@@ -3,9 +3,7 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 
 // Parse manifest to get extension metadata
-const manifest = JSON.parse(
-  readFileSync('./src/manifest.json', 'utf-8')
-);
+const manifest = JSON.parse(readFileSync('./src/manifest.json', 'utf-8'));
 
 // Create a plugin to handle browser extension specifics
 const extensionPlugin = {
@@ -16,7 +14,7 @@ const extensionPlugin = {
     config.build = config.build || {};
     config.build.target = ['chrome89', 'firefox89', 'safari15'];
     return config;
-  }
+  },
 };
 
 export default defineConfig({
@@ -32,16 +30,16 @@ export default defineConfig({
         // Main extension scripts
         background: resolve(__dirname, 'src/background.js'),
         popup: resolve(__dirname, 'src/popup.js'),
-        content_script: resolve(__dirname, 'src/content_script.js')
+        content_script: resolve(__dirname, 'src/content_script.js'),
       },
       output: {
         entryFileNames: '[name].js',
         format: 'es',
         // Organize output files in a clean structure
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
-    }
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
   },
   // Handle static assets from src directory
   publicDir: 'src',
@@ -50,6 +48,6 @@ export default defineConfig({
   // Define environment variables
   define: {
     'process.env.EXT_VERSION': JSON.stringify(manifest.version),
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-  }
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+  },
 });

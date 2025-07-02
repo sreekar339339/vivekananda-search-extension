@@ -9,14 +9,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'tests/']
+      exclude: ['node_modules/', 'tests/'],
     },
     globals: true,
-    testTimeout: 5000 // Reduced since we're only testing pure functions now
+    testTimeout: 5000, // Reduced since we're only testing pure functions now
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src')
-    }
-  }
+      '@': resolve(__dirname, './src'),
+    },
+  },
 });

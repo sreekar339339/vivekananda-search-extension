@@ -23,11 +23,11 @@ export default [
       'prefer-const': 'error',
       'no-duplicate-imports': 'error',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      // Style consistency
-      'semi': ['error', 'always'],
-      'quotes': ['error', 'single', { allowTemplateLiterals: true }],
-      'comma-dangle': ['error', 'always-multiline'],
-      'arrow-parens': ['error', 'as-needed'],
+      // Style consistency - let Prettier handle these
+      // semi: ['error', 'always'],
+      // quotes: ['error', 'single', { allowTemplateLiterals: true }],
+      // 'comma-dangle': ['error', 'always-multiline'],
+      // 'arrow-parens': ['error', 'as-needed'],
       // Performance
       'no-unused-expressions': 'error',
     },

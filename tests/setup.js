@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load test fixtures
-export const loadFixture = (filename) => {
+export const loadFixture = filename => {
   const filePath = path.join(__dirname, 'fixtures', filename);
   return fs.readFileSync(filePath, 'utf-8');
 };

@@ -21,20 +21,27 @@ function extractLinks(html, baseUrl) {
   const links = new Set();
   const hrefRegex = /href=["'](.*?)["']/gi;
   let match;
-  
+
   while ((match = hrefRegex.exec(html)) !== null) {
     try {
       const link = match[1];
-      if (link && !link.startsWith('javascript:') && !link.startsWith('#') && !link.startsWith('mailto:')) {
+      if (
+        link &&
+        !link.startsWith('javascript:') &&
+        !link.startsWith('#') &&
+        !link.startsWith('mailto:')
+      ) {
         const fullUrl = new URL(link, baseUrl).href;
-        
+
         // Only include .htm and .html files from the Vivekananda site
-        if (fullUrl.includes('ramakrishnavivekananda.info/vivekananda') && 
-            (fullUrl.endsWith('.htm') || fullUrl.endsWith('.html')) &&
-            !fullUrl.includes('/images/') && 
-            !fullUrl.includes('/downloads/') &&
-            !fullUrl.includes('/bengali/') &&
-            !fullUrl.includes('/bangla/')) {
+        if (
+          fullUrl.includes('ramakrishnavivekananda.info/vivekananda') &&
+          (fullUrl.endsWith('.htm') || fullUrl.endsWith('.html')) &&
+          !fullUrl.includes('/images/') &&
+          !fullUrl.includes('/downloads/') &&
+          !fullUrl.includes('/bengali/') &&
+          !fullUrl.includes('/bangla/')
+        ) {
           links.add(fullUrl);
         }
       }
@@ -42,7 +49,7 @@ function extractLinks(html, baseUrl) {
       // Ignore invalid URLs
     }
   }
-  
+
   return [...links];
 }
 
@@ -53,34 +60,36 @@ async function processUrl(url) {
     if (visitedUrls.has(url)) {
       return [];
     }
-    
+
     visitedUrls.add(url);
     console.log(`Fetching (${visitedUrls.size}/${totalProcessed}): ${url}`);
-    
+
     // Fetch with timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
+
     const response = await fetch(url, { signal: controller.signal });
     clearTimeout(timeoutId);
-    
+
     // Check content type
     const contentType = response.headers.get('Content-Type') || '';
     if (!contentType.includes('text/html')) {
       return [];
     }
-    
+
     const html = await response.text();
-    
+
     // Quick check for non-English pages
-    if (html.includes('<html lang="bn">') || 
-        html.includes('<!-- Bengali -->') || 
-        url.includes('/bengali/') || 
-        url.includes('/bangla/')) {
+    if (
+      html.includes('<html lang="bn">') ||
+      html.includes('<!-- Bengali -->') ||
+      url.includes('/bengali/') ||
+      url.includes('/bangla/')
+    ) {
       console.log(`Skipping non-English page: ${url}`);
       return [];
     }
-    
+
     // Extract links
     return extractLinks(html, url);
   } catch (error) {
@@ -92,20 +101,20 @@ async function processUrl(url) {
 // Main crawler function
 async function crawl() {
   console.log('Starting crawler...');
-  
+
   while (urlQueue.length > 0 && visitedUrls.size < MAX_PAGES) {
     // Take batch of URLs to process
     const batch = [];
     const batchSize = Math.min(CONCURRENCY, urlQueue.length);
-    
+
     for (let i = 0; i < batchSize; i++) {
       batch.push(urlQueue.shift());
     }
-    
+
     // Process batch concurrently
     const results = await Promise.all(batch.map(processUrl));
     totalProcessed += batch.length;
-    
+
     // Add new URLs to queue
     for (const newLinks of results) {
       for (const link of newLinks) {
@@ -114,10 +123,10 @@ async function crawl() {
         }
       }
     }
-    
+
     console.log(`Progress: ${visitedUrls.size} URLs visited, ${urlQueue.length} in queue`);
   }
-  
+
   console.log(`Crawling completed! Found ${visitedUrls.size} URLs.`);
   return [...visitedUrls];
 }
@@ -130,17 +139,19 @@ function generateUrlsFile(urls) {
 
 export const preloadedUrls = ${JSON.stringify(urls, null, 2)};
 `;
-  
+
   fs.writeFileSync(OUTPUT_FILE, content);
   console.log(`URL list written to ${OUTPUT_FILE}`);
 }
 
 // Run the crawler
 console.log('Running crawler script...');
-crawl().then(urls => {
-  generateUrlsFile(urls);
-  console.log(`Done! Found ${urls.length} URLs.`);
-}).catch(error => {
-  console.error('Crawl failed:', error);
-  process.exit(1);
-});
+crawl()
+  .then(urls => {
+    generateUrlsFile(urls);
+    console.log(`Done! Found ${urls.length} URLs.`);
+  })
+  .catch(error => {
+    console.error('Crawl failed:', error);
+    process.exit(1);
+  });

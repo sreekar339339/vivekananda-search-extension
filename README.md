@@ -141,11 +141,11 @@ const serviceWorker = await context.waitForEvent('serviceworker');
 For service workers making network requests, set up route interception at the context level:
 
 ```javascript
-await context.route('https://www.ramakrishnavivekananda.info/**', async (route) => {
+await context.route('https://www.ramakrishnavivekananda.info/**', async route => {
   await route.fulfill({
     status: 200,
     contentType: 'text/html',
-    body: '<!-- mock HTML content -->'
+    body: '<!-- mock HTML content -->',
   });
 });
 ```
@@ -158,6 +158,7 @@ await context.route('https://www.ramakrishnavivekananda.info/**', async (route) 
 4. Test components individually before testing the entire extension flow
 
 ## Project Structure
+
 ```
 vivekananda-search-extension/
 ├── src/                  # Source code files
@@ -199,7 +200,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
 
 This project uses Git hooks for code quality. See [HOOKS.md](HOOKS.md) for more information about the pre-commit and pre-push hooks.
-
 
 ## Acknowledgments
 

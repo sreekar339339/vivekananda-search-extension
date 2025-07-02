@@ -19,7 +19,7 @@ if (!fs.existsSync(fixturesDir)) {
 const urlsToDownload = [
   // Master index page
   'https://www.ramakrishnavivekananda.info/vivekananda/master_index.htm',
-  
+
   // Key content pages with "soul" references
   'https://www.ramakrishnavivekananda.info/vivekananda/volume_1/lectures_and_discourses/soul_god_and_religion.htm',
   'https://www.ramakrishnavivekananda.info/vivekananda/volume_1/lectures_and_discourses/the_hindu_religion.htm',
@@ -30,7 +30,7 @@ const urlsToDownload = [
   'https://www.ramakrishnavivekananda.info/vivekananda/volume_2/practical_vedanta_and_other_lectures/practical_vedanta_part_i.htm',
   'https://www.ramakrishnavivekananda.info/vivekananda/volume_3/bhakti-yoga/definition_of_bhakti.htm',
   'https://www.ramakrishnavivekananda.info/vivekananda/volume_5/epistles_first_series/052_friend.htm',
-  'https://www.ramakrishnavivekananda.info/vivekananda/volume_7/conversations_and_dialogues/from_the_diary_of_a_disciple/scc_xvi.htm'
+  'https://www.ramakrishnavivekananda.info/vivekananda/volume_7/conversations_and_dialogues/from_the_diary_of_a_disciple/scc_xvi.htm',
 ];
 
 /**
@@ -39,9 +39,7 @@ const urlsToDownload = [
  * @returns {string} - Sanitized filename
  */
 function urlToFilename(url) {
-  return url
-    .replace('https://www.ramakrishnavivekananda.info/', '')
-    .replace(/\//g, '_') + '.html';
+  return url.replace('https://www.ramakrishnavivekananda.info/', '').replace(/\//g, '_') + '.html';
 }
 
 /**
@@ -53,31 +51,33 @@ function downloadUrl(url) {
   return new Promise((resolve, reject) => {
     const filename = urlToFilename(url);
     const filePath = path.join(fixturesDir, filename);
-    
+
     console.log(`Downloading ${url} to ${filePath}...`);
-    
-    https.get(url, (response) => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to download ${url}: HTTP ${response.statusCode}`));
-        return;
-      }
-      
-      let data = '';
-      response.setEncoding('utf8');
-      
-      response.on('data', (chunk) => {
-        data += chunk;
+
+    https
+      .get(url, response => {
+        if (response.statusCode !== 200) {
+          reject(new Error(`Failed to download ${url}: HTTP ${response.statusCode}`));
+          return;
+        }
+
+        let data = '';
+        response.setEncoding('utf8');
+
+        response.on('data', chunk => {
+          data += chunk;
+        });
+
+        response.on('end', () => {
+          fs.writeFileSync(filePath, data, 'utf8');
+          console.log(`✅ Downloaded ${url}`);
+          resolve();
+        });
+      })
+      .on('error', error => {
+        console.error(`❌ Error downloading ${url}:`, error.message);
+        reject(error);
       });
-      
-      response.on('end', () => {
-        fs.writeFileSync(filePath, data, 'utf8');
-        console.log(`✅ Downloaded ${url}`);
-        resolve();
-      });
-    }).on('error', (error) => {
-      console.error(`❌ Error downloading ${url}:`, error.message);
-      reject(error);
-    });
   });
 }
 
@@ -86,10 +86,10 @@ function downloadUrl(url) {
  */
 async function main() {
   console.log('🔄 Starting download of fixture files...');
-  
+
   let successCount = 0;
   let failCount = 0;
-  
+
   for (const url of urlsToDownload) {
     try {
       await downloadUrl(url);
@@ -101,7 +101,7 @@ async function main() {
       console.error(`Failed to download ${url}:`, error.message);
     }
   }
-  
+
   console.log(`\n✅ Download complete: ${successCount} files downloaded, ${failCount} failed`);
 }
 

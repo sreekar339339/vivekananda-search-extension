@@ -28,7 +28,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // Configuration for testing Chrome extensions
         launchOptions: {
@@ -39,16 +39,16 @@ export default defineConfig({
             `--disable-extensions-except=${path.resolve('./dist')}`,
             `--load-extension=${path.resolve('./dist')}`,
             // Enable browser-specific features needed for extension testing
-            '--allow-file-access-from-files'
-          ]
+            '--allow-file-access-from-files',
+          ],
         },
         // Additional settings for extension testing
         contextOptions: {
           // Reduce flakiness by setting a reasonable timeout
           timeout: 30000,
           // For the Context API (see test files for browser.newContext())
-          permissions: ['notifications']
-        }
+          permissions: ['notifications'],
+        },
       },
     },
   ],

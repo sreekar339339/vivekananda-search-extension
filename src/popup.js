@@ -6,9 +6,9 @@ let handleMessage;
 function connectToBackground() {
   port = chrome.runtime.connect({ name: 'popup' });
   // console.log('Connected to background script');
-  
+
   // Listen for messages from the background script via port
-  port.onMessage.addListener((request) => {
+  port.onMessage.addListener(request => {
     // console.log('Port message received:', request);
     if (handleMessage) {
       handleMessage(request);
@@ -16,7 +16,7 @@ function connectToBackground() {
       // console.error('handleMessage function not initialized yet');
     }
   });
-  
+
   // Handle port disconnection
   port.onDisconnect.addListener(() => {
     // console.log('Port disconnected, will try to reconnect on next action');
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const searchForm = document.getElementById('search-form');
   const searchButton = document.getElementById('search-button');
   const stopButton = document.getElementById('stop-button');
-  const searchButtonText = document.querySelector('#search-button span');
+  const _searchButtonText = document.querySelector('#search-button span');
   const resultsDiv = document.getElementById('results');
   const resultsCounter = document.getElementById('results-counter');
   const progressBar = document.getElementById('progress-bar');
@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       } catch (error) {
         // console.error('Error sending search message:', error);
+        // console.error('Error sending search message:', error);
         // Try to reconnect
         connectToBackground();
         chrome.runtime.sendMessage({ action: 'search', query: query });
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch (error) {
       // console.error('Error sending stop message:', error);
+      // console.error('Error sending stop message:', error);
       connectToBackground();
       chrome.runtime.sendMessage({ action: 'stopSearch' });
     }
@@ -89,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
     progressBar.style.width = '0';
     progressBar.style.backgroundImage = 'none';
   });
-
 
   function displayResults(results) {
     if (results && results.length > 0) {
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Define message handler function within DOMContentLoaded scope
   // Assign to the outer scoped variable so port listeners can use it
-  handleMessage = function(request) {
+  handleMessage = function (request) {
     // console.log('Processing message:', request);
     if (request.action === 'searchResult') {
       if (resultsDiv.innerHTML === '<p>Searching...</p>') {
@@ -130,10 +131,10 @@ document.addEventListener('DOMContentLoaded', function () {
         resultsDiv.innerHTML = '<p>No results found.</p>';
       }
     }
-  }
+  };
 
   // Also keep the runtime message listener for backward compatibility
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
     // console.log('Runtime message received:', request);
     handleMessage(request);
   });

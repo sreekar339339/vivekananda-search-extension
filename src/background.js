@@ -3,7 +3,7 @@ import PQueue from 'p-queue';
 
 let isSearching = false;
 
-chrome.action.onClicked.addListener(tab => {
+chrome.action.onClicked.addListener(_tab => {
   chrome.tabs.create({
     url: 'popup.html',
   });
@@ -13,19 +13,19 @@ chrome.action.onClicked.addListener(tab => {
 let popupPort = null;
 
 // Handle connections from popup
-chrome.runtime.onConnect.addListener((port) => {
+chrome.runtime.onConnect.addListener(port => {
   // console.log('Port connected:', port.name);
   if (port.name === 'popup') {
     popupPort = port;
-    
+
     // Handle popup disconnection
     port.onDisconnect.addListener(() => {
       // console.log('Popup disconnected');
       popupPort = null;
     });
-    
+
     // Listen for messages from the popup
-    port.onMessage.addListener((request) => {
+    port.onMessage.addListener(request => {
       // console.log('Message received from popup:', request);
       if (request.action === 'search') {
         isSearching = true;
@@ -38,7 +38,7 @@ chrome.runtime.onConnect.addListener((port) => {
 });
 
 // For backward compatibility with existing message listeners
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
   // console.log('Message received:', request);
   if (request.action === 'search') {
     isSearching = true;
@@ -55,66 +55,61 @@ import { preloadedUrls } from './url-list.js';
 import { parseHTML } from './html-parser.js';
 
 async function parseHTMLWithServiceWorker(html) {
-  try {
-    // console.log('Starting HTML parsing with LinkedOM parser');
-    const result = parseHTML(html);
-    // console.log('HTML parsed successfully with LinkedOM parser');
-    // console.log(`Parsed ${result.links.length} links and ${result.paragraphs.length} paragraphs`);
-    return result;
-  } catch (error) {
-    // console.error('Error in parseHTMLWithServiceWorker:', error);
-    throw error;
-  }
+  // console.log('Starting HTML parsing with LinkedOM parser');
+  const result = parseHTML(html);
+  // console.log('HTML parsed successfully with LinkedOM parser');
+  // console.log(`Parsed ${result.links.length} links and ${result.paragraphs.length} paragraphs`);
+  return result;
 }
 
 async function performSearch(query) {
   // console.log('Performing search for:', query);
   const CONCURRENCY = 10;
-  
+
   // Create a new PQueue with concurrency limit
   const queue = new PQueue({ concurrency: CONCURRENCY });
-  
+
   // Use our preloaded URLs instead of discovering them through parsing
   const totalLinks = preloadedUrls.length;
   let searchedLinks = 0;
-  
+
   // Lowercase the query once for case-insensitive comparisons
   const queryLower = query.toLowerCase();
-  
+
   // Create a regex to highlight matches efficiently
   const highlightRegex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-  
+
   // Setup progress monitoring
   let lastProgressUpdate = Date.now();
   const PROGRESS_UPDATE_INTERVAL = 500; // 500ms between progress updates
-  
+
   // Create a function to handle completed tasks
-  const handleTaskCompletion = (result) => {
+  const handleTaskCompletion = result => {
     if (!isSearching) return;
-    
+
     // Increment counter for progress calculation
     searchedLinks++;
-    
+
     // Calculate progress percentage
     const progress = (searchedLinks / totalLinks) * 100;
-    
+
     // Throttle progress updates to avoid overwhelming the UI
     const now = Date.now();
     if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) {
       lastProgressUpdate = now;
       sendProgressUpdate(progress);
     }
-    
+
     // Process results if we have matches
     if (result && result.matches && result.matches.length > 0) {
       sendSearchResults(result.matches);
     }
   };
-  
+
   // Add all URLs to the queue
   for (const url of preloadedUrls) {
     if (!isSearching) break;
-    
+
     // Add each URL as a task to the queue
     queue.add(() => {
       if (!isSearching) return Promise.resolve(null);
@@ -124,39 +119,42 @@ async function performSearch(query) {
           return result;
         })
         .catch(error => {
+          console.error({ error });
           handleTaskCompletion(null); // Still increment counter on errors
           return null;
         });
     });
   }
-  
+
   // Helper function to send progress updates
   function sendProgressUpdate(progress) {
-// console.log(`Sending search progress: ${progress}%`);
-// Send via port if available, fall back to runtime messaging
-if (popupPort) {
-  try {
-    popupPort.postMessage({ action: 'searchProgress', progress });
-    // Continue to next iteration without falling back to runtime messaging
-  } catch (error) {
-    // console.error('Error sending progress via port:', error);
-    // Fall back to traditional messaging only if port fails
-    try {
-      chrome.runtime.sendMessage({ action: 'searchProgress', progress })
-        .catch(error => {/* console.error('Error sending search progress:', error) */});
-    } catch (error) {
-      // console.error('Exception sending search progress:', error);
+    // console.log(`Sending search progress: ${progress}%`);
+    // Send via port if available, fall back to runtime messaging
+    if (popupPort) {
+      try {
+        popupPort.postMessage({ action: 'searchProgress', progress });
+        // Continue to next iteration without falling back to runtime messaging
+      } catch (error) {
+        console.error('Error sending progress via port:', error);
+        // Fall back to traditional messaging only if port fails
+        try {
+          chrome.runtime.sendMessage({ action: 'searchProgress', progress }).catch(() => {
+            console.error('Error sending search progress');
+          });
+        } catch (error) {
+          console.error('Exception sending search progress:', error);
+        }
+      }
+    } else {
+      // Only use runtime messaging if port isn't available
+      try {
+        chrome.runtime.sendMessage({ action: 'searchProgress', progress }).catch(() => {
+          console.error('Error sending search progress');
+        });
+      } catch (error) {
+        console.error('Exception sending search progress:', error);
+      }
     }
-  }
-} else {
-  // Only use runtime messaging if port isn't available
-  try {
-    chrome.runtime.sendMessage({ action: 'searchProgress', progress })
-      .catch(error => {/* console.error('Error sending search progress:', error) */});
-  } catch (error) {
-    // console.error('Exception sending search progress:', error);
-  }
-}
   }
 
   // Helper function to send search results
@@ -164,18 +162,18 @@ if (popupPort) {
     if (popupPort) {
       try {
         popupPort.postMessage({ action: 'searchResult', results });
-      } catch (error) {
+      } catch (_) {
         try {
           chrome.runtime.sendMessage({ action: 'searchResult', results });
-        } catch (e) {
-          // Ignore errors
+        } catch (error) {
+          console.error('Exception sending search results:', error);
         }
       }
     } else {
       try {
         chrome.runtime.sendMessage({ action: 'searchResult', results });
-      } catch (e) {
-        // Ignore errors
+      } catch (error) {
+        console.error('Exception sending search results:', error);
       }
     }
   }
@@ -185,28 +183,30 @@ if (popupPort) {
     // onIdle returns a promise that resolves when the queue is empty
     await queue.onIdle();
   } catch (error) {
-    // console.error('Error waiting for queue to complete:', error);
+    console.error('Error waiting for queue to complete:', error);
   } finally {
     // Ensure final progress update
     sendProgressUpdate(100);
-    
+
     // Send search complete message
     if (popupPort) {
       try {
         popupPort.postMessage({ action: 'searchComplete' });
-      } catch (error) {
+      } catch (_) {
         try {
-          chrome.runtime.sendMessage({ action: 'searchComplete' })
-            .catch(() => {/* Ignore errors */});
-        } catch (error) {
+          chrome.runtime.sendMessage({ action: 'searchComplete' }).catch(() => {
+            /* Ignore errors */
+          });
+        } catch (_) {
           // Ignore errors
         }
       }
     } else {
       try {
-        chrome.runtime.sendMessage({ action: 'searchComplete' })
-          .catch(() => {/* Ignore errors */});
-      } catch (error) {
+        chrome.runtime.sendMessage({ action: 'searchComplete' }).catch(() => {
+          /* Ignore errors */
+        });
+      } catch (_) {
         // Ignore errors
       }
     }
@@ -216,70 +216,73 @@ if (popupPort) {
 // Function to quickly search text directly in HTML using String.prototype.matchAll
 async function fastFetchAndSearch(url, queryLower, highlightRegex) {
   if (!isSearching) return null;
-  
+
   try {
     // Use AbortController for timeout
     const controller = new AbortController();
     const signal = controller.signal;
     const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-    
+
     const response = await fetch(url, { signal });
     clearTimeout(timeoutId);
-    
+
     // Skip non-HTML content
     const contentType = response.headers.get('Content-Type') || '';
     if (!contentType.includes('text/html')) {
       return { matches: [] };
     }
-    
+
     const html = await response.text();
-    
+
     // Quick check if the query exists in the page
     if (!html.toLowerCase().includes(queryLower)) {
       return { matches: [] };
     }
-    
+
     // Extract title using regex instead of DOM parsing
     const titleMatch = /<title>(.*?)<\/title>/i.exec(html);
     const title = titleMatch ? titleMatch[1] : url.split('/').pop().replace('.htm', '');
-    
+
     // Escape the query for use in regex (handle special regex characters)
     const escapedQuery = queryLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    
+
     // Create a regex to find the query, making sure it's not inside a tag attribute
     // Negative lookbehind ensures we don't match inside attributes
     // Negative lookahead ensures we don't match partial words
-    const matchRegex = new RegExp(`(?<!=['"\w])${escapedQuery}(?!['"\w])`, 'gi');
-    
+    const matchRegex = new RegExp(`(?<![='"\\w])${escapedQuery}(?!['"\\w])`, 'gi');
+
     // Find all matches using matchAll
     const matchIterator = html.matchAll(matchRegex);
     const matches = Array.from(matchIterator);
-    
+
     // Extract full sentences for each match (up to sentence boundaries)
     const sentenceMatches = [];
-    
+
     for (const match of matches) {
       const matchIndex = match.index;
-      
+
       // Look for sentence boundaries (., !, ?) before the match
       let sentenceStart = -1;
-      for (let i = 0; i < 3; i++) { // Try multiple punctuation marks
-        const punctuation = i === 0 ? '.' : (i === 1 ? '!' : '?');
+      for (let i = 0; i < 3; i++) {
+        // Try multiple punctuation marks
+        const punctuation = i === 0 ? '.' : i === 1 ? '!' : '?';
         let tempStart = matchIndex;
-        
+
         // Look backward for up to 300 characters to find sentence start
         while (tempStart > 0 && tempStart > matchIndex - 300) {
           tempStart--;
           // Check if we found a sentence boundary followed by a space or newline
-          if ((html[tempStart] === punctuation && 
-               (html[tempStart + 1] === ' ' || html[tempStart + 1] === '\n'))) {
+          if (
+            html[tempStart] === punctuation &&
+            (html[tempStart + 1] === ' ' || html[tempStart + 1] === '\n')
+          ) {
             sentenceStart = tempStart + 2; // Start after the punctuation and space
             break;
           }
         }
         if (sentenceStart !== -1) break;
       }
-      
+
       // If no sentence start found, look for beginning of paragraph
       if (sentenceStart === -1) {
         let tempStart = matchIndex;
@@ -291,22 +294,24 @@ async function fastFetchAndSearch(url, queryLower, highlightRegex) {
           }
         }
       }
-      
+
       // If still no start found, use a reasonable offset
       if (sentenceStart === -1) {
         sentenceStart = Math.max(0, matchIndex - 100);
       }
-      
+
       // Look for sentence boundaries after the match
       let sentenceEnd = -1;
       for (let i = 0; i < 3; i++) {
-        const punctuation = i === 0 ? '.' : (i === 1 ? '!' : '?');
+        const punctuation = i === 0 ? '.' : i === 1 ? '!' : '?';
         let tempEnd = matchIndex + match[0].length;
-        
+
         // Look forward for up to 300 characters to find sentence end
         while (tempEnd < html.length && tempEnd < matchIndex + 300) {
-          if (html[tempEnd] === punctuation && 
-              (tempEnd + 1 === html.length || html[tempEnd + 1] === ' ' || html[tempEnd + 1] === '\n')) {
+          if (
+            html[tempEnd] === punctuation &&
+            (tempEnd + 1 === html.length || html[tempEnd + 1] === ' ' || html[tempEnd + 1] === '\n')
+          ) {
             sentenceEnd = tempEnd + 1; // Include the punctuation
             break;
           }
@@ -314,7 +319,7 @@ async function fastFetchAndSearch(url, queryLower, highlightRegex) {
         }
         if (sentenceEnd !== -1) break;
       }
-      
+
       // If no sentence end found, look for end of paragraph
       if (sentenceEnd === -1) {
         let tempEnd = matchIndex + match[0].length;
@@ -326,52 +331,52 @@ async function fastFetchAndSearch(url, queryLower, highlightRegex) {
           tempEnd++;
         }
       }
-      
+
       // If still no end found, use a reasonable offset
       if (sentenceEnd === -1) {
         sentenceEnd = Math.min(html.length, matchIndex + match[0].length + 100);
       }
-      
+
       // Extract the sentence containing the match
       const sentence = html.substring(sentenceStart, sentenceEnd);
-      
+
       // Make sure the sentence isn't just HTML or an attribute value
-      if (sentence.length > 20 && 
-          !sentence.includes('="') && 
-          !sentence.includes('\'')) {
+      if (sentence.length > 20 && !sentence.includes('="') && !sentence.includes("'")) {
         sentenceMatches.push(sentence);
       }
     }
-    
+
     // If we found matches, return them as a single result for this page
     if (sentenceMatches.length > 0) {
       // Remove duplicates
       const uniqueMatches = [...new Set(sentenceMatches)];
-      
+
       // Highlight all occurrences of the query term in each match
-      const highlightedMatches = uniqueMatches.map(match => 
+      const highlightedMatches = uniqueMatches.map(match =>
         match.replace(highlightRegex, '<b>$&</b>')
       );
-      
+
       return {
-        matches: [{
-          url,
-          title,
-          paragraph: highlightedMatches.join(' ... '),
-          matchCount: uniqueMatches.length
-        }]
+        matches: [
+          {
+            url,
+            title,
+            paragraph: highlightedMatches.join(' ... '),
+            matchCount: uniqueMatches.length,
+          },
+        ],
       };
     }
-    
+
     return { matches: [] };
-  } catch (error) {
+  } catch (_) {
     return { matches: [] };
   }
 }
 
 function extractLinksWithRegex(html, baseUrl) {
   const links = [];
-  const hrefRegex = /href=[\"\'](.*?)[\"\']/gi;
+  const hrefRegex = /href=['"](.*?)['"]/gi;
   let match;
   while ((match = hrefRegex.exec(html)) !== null) {
     try {
@@ -382,14 +387,14 @@ function extractLinksWithRegex(html, baseUrl) {
           links.push(fullUrl);
         }
       }
-    } catch (e) {
+    } catch (_) {
       // Ignore invalid URLs
     }
   }
   return links;
 }
 
-async function fetchAndSearch(url, query, queryLower) {
+async function _fetchAndSearch(url, query, queryLower) {
   if (!isSearching) return null;
 
   // Skip non-Vivekananda domains early to avoid CORS errors
@@ -399,38 +404,44 @@ async function fetchAndSearch(url, query, queryLower) {
       return [];
     }
     // Skip common non-content URLs to avoid wasting time
-    if (url.includes('/images/') || url.includes('.css') || url.includes('.js') || url.includes('.jpg') || url.includes('.png')) {
+    if (
+      url.includes('/images/') ||
+      url.includes('.css') ||
+      url.includes('.js') ||
+      url.includes('.jpg') ||
+      url.includes('.png')
+    ) {
       return [];
     }
-    
+
     // Use AbortController to add timeout for slow requests
     const controller = new AbortController();
     const signal = controller.signal;
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-    
+
     // console.log(`Fetching: ${url}`);
     const response = await fetch(url, { signal });
     clearTimeout(timeoutId);
-    
+
     // Check content type before parsing - only process HTML
     const contentType = response.headers.get('Content-Type') || '';
     if (!contentType.includes('text/html')) {
       return [];
     }
-    
+
     const html = await response.text();
     // console.log(`Got HTML response: ${html.length} characters`);
-    
+
     // Quick scan for query before full parsing
     if (!html.toLowerCase().includes(queryLower)) {
       // If the query isn't in the raw HTML at all, skip full parsing
       const simpleLinks = extractLinksWithRegex(html, url);
       return simpleLinks;
     }
-    
+
     const { links: rawLinks, paragraphs, title, lang } = await parseHTMLWithServiceWorker(html);
     // console.log(`Parsed document with title: ${title}`);
-    
+
     // Skip non-English pages early to avoid unnecessary processing
     if (lang && !lang.toLowerCase().startsWith('en')) {
       return [];
@@ -452,7 +463,7 @@ async function fetchAndSearch(url, query, queryLower) {
         ) {
           validLinks.push(fullUrl);
         }
-      } catch (e) {
+      } catch (_) {
         // Silently ignore invalid URLs
       }
     }
@@ -494,36 +505,38 @@ async function fetchAndSearch(url, query, queryLower) {
       }
 
       if (found.length > 0) {
-// console.log('Sending search results:', found.length);
-// Send via port if available, fall back to runtime messaging
-if (popupPort) {
-  try {
-    popupPort.postMessage({ action: 'searchResult', results: found });
-    // Successfully sent via port, no need to use runtime messaging
-  } catch (error) {
-    // console.error('Error sending results via port:', error);
-    // Fall back to traditional messaging only if port fails
-    try {
-      chrome.runtime.sendMessage({ action: 'searchResult', results: found })
-        .catch(error => {/* console.error('Error sending search results:', error) */});
-    } catch (error) {
-      // console.error('Exception sending search results:', error);
-    }
-  }
-} else {
-  // Only use runtime messaging if port isn't available
-  try {
-    chrome.runtime.sendMessage({ action: 'searchResult', results: found })
-      .catch(error => {/* console.error('Error sending search results:', error) */});
-  } catch (error) {
-    // console.error('Exception sending search results:', error);
-  }
-}
+        // console.log('Sending search results:', found.length);
+        // Send via port if available, fall back to runtime messaging
+        if (popupPort) {
+          try {
+            popupPort.postMessage({ action: 'searchResult', results: found });
+            // Successfully sent via port, no need to use runtime messaging
+          } catch (_) {
+            // console.error('Error sending results via port:', error);
+            // Fall back to traditional messaging only if port fails
+            try {
+              chrome.runtime.sendMessage({ action: 'searchResult', results: found }).catch(() => {
+                /* console.error('Error sending search results') */
+              });
+            } catch (_) {
+              // console.error('Exception sending search results:', error);
+            }
+          }
+        } else {
+          // Only use runtime messaging if port isn't available
+          try {
+            chrome.runtime.sendMessage({ action: 'searchResult', results: found }).catch(() => {
+              /* console.error('Error sending search results') */
+            });
+          } catch (_) {
+            // console.error('Exception sending search results:', error);
+          }
+        }
       }
     }
 
     return validLinks;
-  } catch (error) {
+  } catch (_) {
     // console.error(`Error fetching ${url}:`, error);
     return [];
   }
