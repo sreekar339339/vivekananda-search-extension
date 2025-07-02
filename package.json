@@ -27,6 +27,8 @@
     "format:check": "prettier --check '**/*.{js,html,json,md}'",
     "fix": "npm run format && npm run lint:fix",
     "package": "npm run build && npm run zip",
+    "package:chrome": "npm run build && mkdir -p releases && cd dist && zip -r ../vivekananda-search-chrome.zip *",
+    "package:firefox": "npm run build && mkdir -p releases && cd dist && zip -r ../vivekananda-search-firefox.zip *",
     "zip": "npm run zip:chrome && npm run zip:firefox",
     "zip:chrome": "cd dist && zip -r ../releases/vivekananda-search-chrome-v$npm_package_version.zip *",
     "zip:firefox": "cd dist && zip -r ../releases/vivekananda-search-firefox-v$npm_package_version.zip *",
