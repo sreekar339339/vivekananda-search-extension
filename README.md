@@ -18,14 +18,14 @@ A browser extension that allows you to search the complete works of Swami Viveka
 1. Download or clone this repository
 2. Open your browser and go to `chrome://extensions`
 3. Enable "Developer mode" using the toggle in the top-right corner
-4. Click "Load unpacked" and select the `vivekananda-search-extension` folder
+4. Click "Load unpacked" and select the `vivekananda-search-extension/src` folder
 5. The extension is now installed and ready to use
 
 ### Firefox (Manual Installation)
 
 1. Download or clone this repository
 2. Open Firefox and go to `about:debugging#/runtime/this-firefox`
-3. Click "Load Temporary Add-on" and select the `manifest.json` file within the `vivekananda-search-extension` folder
+3. Click "Load Temporary Add-on" and select the `manifest.json` file within the `vivekananda-search-extension/src` folder
 4. The extension is now installed temporarily (it will be removed when you close Firefox)
 
 ## Usage
@@ -50,6 +50,35 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
 
 This project uses Git hooks for code quality. See [HOOKS.md](HOOKS.md) for more information about the pre-commit and pre-push hooks.
+
+## Project Structure
+
+```
+vivekananda-search-extension/
+├── src/                  # Source code files
+│   ├── background.js     # Service worker for extension background tasks
+│   ├── content_script.js # Content script for webpage integration
+│   ├── images/           # Extension icons and images
+│   ├── manifest.json     # Extension manifest
+│   ├── offscreen.html    # Offscreen document for DOM parsing
+│   ├── offscreen.js      # JavaScript for offscreen document
+│   ├── popup.html        # Main extension UI
+│   └── popup.js          # JavaScript for extension UI
+├── .eslintrc.js         # ESLint configuration
+├── .htmlvalidate.json   # HTML validation configuration
+├── .prettierrc          # Prettier configuration
+├── .husky/              # Git hooks
+├── package.json         # Project metadata and scripts
+└── README.md            # This file
+```
+
+### Development Scripts
+
+- `npm run build` - Build the extension to the dist/ directory
+- `npm run lint` - Run linting on all files
+- `npm run format` - Format all files with Prettier
+- `npm run package:chrome` - Package the extension for Chrome
+- `npm run package:firefox` - Package the extension for Firefox
 
 ## Acknowledgments
 

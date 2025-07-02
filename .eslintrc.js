@@ -20,4 +20,5 @@ module.exports = {
     'no-console': 'off',
     'no-useless-escape': 'off',
   },
+  ignorePatterns: ['!.eslintrc.js', 'node_modules/', 'dist/', 'build/'],
 };

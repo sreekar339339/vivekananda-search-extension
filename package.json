@@ -4,15 +4,15 @@
   "description": "A browser extension to search the complete works of Swami Vivekananda",
   "private": true,
   "scripts": {
-    "build": "echo \"No build process implemented yet\" && exit 0",
+    "build": "mkdir -p dist && cp -r src/* dist/",
     "test": "echo \"No tests implemented yet\" && exit 0",
     "lint": "npm run lint:html && npm run lint:js",
-    "lint:html": "npx html-validate --config .htmlvalidate.json *.html",
-    "lint:js": "npx eslint *.js",
+    "lint:html": "npx html-validate --config .htmlvalidate.json src/**/*.html",
+    "lint:js": "npx eslint src/**/*.js",
     "format": "prettier --write '**/*.{js,html,json,md}'",
     "format:check": "prettier --check '**/*.{js,html,json,md}'",
-    "package:chrome": "echo \"No packaging process implemented yet\" && exit 0",
-    "package:firefox": "echo \"No packaging process implemented yet\" && exit 0",
+    "package:chrome": "npm run build && cd dist && zip -r ../vivekananda-search-chrome.zip *",
+    "package:firefox": "npm run build && cd dist && zip -r ../vivekananda-search-firefox.zip *",
     "prepare": "husky",
     "precommit": "lint-staged"
   },
@@ -34,15 +34,18 @@
   },
   "homepage": "https://github.com/yourusername/vivekananda-search-extension#readme",
   "lint-staged": {
-    "*.js": [
+    "src/**/*.js": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.html": [
+    "src/**/*.html": [
       "html-validate --config .htmlvalidate.json",
       "prettier --write"
     ],
     "*.{json,md}": [
+      "prettier --write"
+    ],
+    "src/**/*.json": [
       "prettier --write"
     ]
   },
