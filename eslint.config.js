@@ -18,6 +18,6 @@ export default [
       'no-console': 'off',
       'no-useless-escape': 'off',
     },
-    ignorePatterns: ['node_modules/', 'dist/', 'build/'],
+    ignores: ['node_modules/', 'dist/', 'build/'],
   }
 ];
