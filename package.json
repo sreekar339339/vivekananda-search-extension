@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A browser extension to search the complete works of Swami Vivekananda",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "mkdir -p dist && cp -r src/* dist/",
     "test": "echo \"No tests implemented yet\" && exit 0",
