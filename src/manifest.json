@@ -2,8 +2,9 @@
   "manifest_version": 3,
   "name": "Ramakrishna Vivekananda Search",
   "version": "1.0",
+  "minimum_chrome_version": "104",
   "description": "Search the Ramakrishna Vivekananda website.",
-  "permissions": ["activeTab", "scripting", "storage", "offscreen"],
+  "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["https://www.ramakrishnavivekananda.info/"],
   "background": {
     "service_worker": "background.js"

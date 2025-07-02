@@ -5,19 +5,32 @@ export default [
   js.configs.recommended,
   {
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 2023,
       sourceType: 'module',
       globals: {
         ...globals.browser,
         chrome: 'readonly',
       },
     },
-    rules: {
-      'no-unused-vars': 'off',
-      'no-undef': 'off',
-      'no-console': 'off',
-      'no-useless-escape': 'off',
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
     },
-    ignores: ['node_modules/', 'dist/', 'build/'],
+    rules: {
+      // Allow console logs for extension development
+      'no-console': 'off',
+      // Error prevention
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'no-duplicate-imports': 'error',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Style consistency
+      'semi': ['error', 'always'],
+      'quotes': ['error', 'single', { allowTemplateLiterals: true }],
+      'comma-dangle': ['error', 'always-multiline'],
+      'arrow-parens': ['error', 'as-needed'],
+      // Performance
+      'no-unused-expressions': 'error',
+    },
+    ignores: ['node_modules/', 'dist/', 'releases/', 'build/'],
   },
 ];

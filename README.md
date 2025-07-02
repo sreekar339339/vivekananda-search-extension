@@ -61,6 +61,131 @@ A browser extension that allows you to search the complete works of Swami Viveka
 5. Click on any result to open the original page in a new tab
 6. You can stop the search at any time by clicking the stop button
 
+## Development
+
+### Scripts
+
+- `npm run dev`: Start development build with watch mode
+- `npm run build`: Create production build
+- `npm run build:dev`: Create development build
+- `npm run preview`: Preview the built extension
+- `npm run clean`: Remove build artifacts
+- `npm run package`: Build and package the extension for Chrome and Firefox
+- `npm run lint`: Run all linters
+- `npm run format`: Format code with Prettier
+- `npm run test`: Run unit and integration tests with Vitest
+- `npm run test:e2e`: Run end-to-end tests with Playwright
+
+### End-to-End Testing with Playwright
+
+This project includes end-to-end tests using Playwright that test the browser extension in a real Chrome environment using downloaded fixture files from the Vivekananda website.
+
+#### Prerequisites
+
+1. Download the fixture files (this only needs to be done once):
+
+```bash
+npm run download-fixtures
+```
+
+2. Install Playwright browsers:
+
+```bash
+npx playwright install chromium
+```
+
+#### Running the Tests
+
+To run the Playwright tests:
+
+```bash
+npm run test:e2e
+```
+
+To run tests with UI mode:
+
+```bash
+npm run test:e2e:ui
+```
+
+To run tests in debug mode:
+
+```bash
+npm run test:e2e:debug
+```
+
+### Extension Testing Tips
+
+Testing browser extensions with Playwright requires specific techniques, especially for Manifest V3 extensions:
+
+#### Working with Service Workers
+
+1. Access the extension's service worker using `context.serviceWorkers()`:
+
+```javascript
+const workers = context.serviceWorkers();
+if (workers.length > 0) {
+  const serviceWorker = workers[0];
+  // Now you can interact with the service worker
+}
+```
+
+2. Wait for a service worker to start if it's not immediately available:
+
+```javascript
+const serviceWorker = await context.waitForEvent('serviceworker');
+```
+
+#### Mocking Network Requests
+
+For service workers making network requests, set up route interception at the context level:
+
+```javascript
+await context.route('https://www.ramakrishnavivekananda.info/**', async (route) => {
+  await route.fulfill({
+    status: 200,
+    contentType: 'text/html',
+    body: '<!-- mock HTML content -->'
+  });
+});
+```
+
+#### Debugging Extension Tests
+
+1. Use screenshot captures at key points in your test
+2. Add console logging in both popup and service worker contexts
+3. Set longer timeouts for extension operations
+4. Test components individually before testing the entire extension flow
+
+## Project Structure
+```
+vivekananda-search-extension/
+├── src/                  # Source code files
+│   ├── background.js     # Service worker for extension
+│   ├── content_script.js # Content script
+│   ├── html-parser.js    # HTML parsing module
+│   ├── images/           # Icons and images
+│   ├── manifest.json     # Extension manifest
+│   ├── popup.html        # Popup UI
+│   └── popup.js          # Popup behavior
+├── tests/                # Test files
+│   ├── e2e/              # End-to-end tests with Playwright
+│   │   ├── fixtures/     # Test fixtures (downloaded real HTML pages)
+│   │   └── helpers.js    # Test helper functions
+│   ├── integration/      # Integration tests with Vitest
+│   ├── unit/             # Unit tests with Vitest
+│   └── fixtures/         # Test fixtures for Vitest tests
+├── scripts/              # Utility scripts
+│   └── download-fixtures.js # Downloads real pages for Playwright tests
+├── dist/                 # Build output
+├── releases/             # Packaged extension releases
+├── .husky/               # Git hooks
+├── CHANGELOG.md          # Version changes
+├── CONTRIBUTING.md       # Contribution guidelines
+├── LICENSE               # License information
+├── README.md             # This file
+```
+
 ## Privacy and Permissions
 
 This extension only accesses the [ramakrishnavivekananda.info](https://www.ramakrishnavivekananda.info/) website to perform searches. It does not collect, store, or transmit any personal data.
@@ -75,34 +200,6 @@ Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) fi
 
 This project uses Git hooks for code quality. See [HOOKS.md](HOOKS.md) for more information about the pre-commit and pre-push hooks.
 
-## Project Structure
-
-```
-vivekananda-search-extension/
-├── src/                  # Source code files
-│   ├── background.js     # Service worker for extension background tasks
-│   ├── content_script.js # Content script for webpage integration
-│   ├── images/           # Extension icons and images
-│   ├── manifest.json     # Extension manifest
-│   ├── offscreen.html    # Offscreen document for DOM parsing
-│   ├── offscreen.js      # JavaScript for offscreen document
-│   ├── popup.html        # Main extension UI
-│   └── popup.js          # JavaScript for extension UI
-├── .eslintrc.js         # ESLint configuration
-├── .htmlvalidate.json   # HTML validation configuration
-├── .prettierrc          # Prettier configuration
-├── .husky/              # Git hooks
-├── package.json         # Project metadata and scripts
-└── README.md            # This file
-```
-
-### Development Scripts
-
-- `npm run build` - Build the extension to the dist/ directory
-- `npm run lint` - Run linting on all files
-- `npm run format` - Format all files with Prettier
-- `npm run package:chrome` - Package the extension for Chrome
-- `npm run package:firefox` - Package the extension for Firefox
 
 ## Acknowledgments
 

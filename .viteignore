@@ -1,0 +1,16 @@
+**/*.js
+node_modules
+.git
+.github
+.eslintrc.cjs
+.prettierrc
+.htmlvalidate.json
+.husky
+vite.config.js
+.viteignore
+package.json
+package-lock.json
+README.md
+LICENSE
+CONTRIBUTING.md
+CHANGES.md

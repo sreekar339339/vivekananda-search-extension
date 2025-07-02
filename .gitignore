@@ -15,6 +15,7 @@ yarn.lock
 # Build files
 dist/
 build/
+releases/
 
 # IDE and editor files
 .idea/

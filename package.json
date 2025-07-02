@@ -5,17 +5,32 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "mkdir -p dist && cp -r src/* dist/",
-    "test": "echo \"No tests implemented yet\" && exit 0",
+    "crawl-urls": "node scripts/crawl-urls.js",
+    "dev": "vite build --watch",
+    "build": "NODE_ENV=production vite build",
+    "build:dev": "NODE_ENV=development vite build",
+    "preview": "vite preview",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "download-fixtures": "node scripts/download-fixtures.js",
     "lint": "npm run lint:html && npm run lint:js",
-    "lint:html": "npx html-validate --config .htmlvalidate.json src/**/*.html",
-    "lint:js": "npx eslint src/**/*.js",
+    "lint:html": "html-validate --config .htmlvalidate.json 'src/**/*.html'",
+    "lint:js": "eslint 'src/**/*.js'",
+    "lint:fix": "eslint --fix 'src/**/*.js'",
     "format": "prettier --write '**/*.{js,html,json,md}'",
     "format:check": "prettier --check '**/*.{js,html,json,md}'",
-    "package:chrome": "npm run build && cd dist && zip -r ../vivekananda-search-chrome.zip *",
-    "package:firefox": "npm run build && cd dist && zip -r ../vivekananda-search-firefox.zip *",
-    "prepare": "husky",
-    "precommit": "lint-staged"
+    "package": "npm run build && npm run zip",
+    "zip": "npm run zip:chrome && npm run zip:firefox",
+    "zip:chrome": "cd dist && zip -r ../releases/vivekananda-search-chrome-v$npm_package_version.zip *",
+    "zip:firefox": "cd dist && zip -r ../releases/vivekananda-search-firefox-v$npm_package_version.zip *",
+    "prepare": "husky && mkdir -p releases",
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "repository": {
     "type": "git",
@@ -59,18 +74,24 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@playwright/test": "^1.53.2",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",
     "globals": "^16.3.0",
+    "happy-dom": "^18.0.1",
     "html-validate": "^9.7.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.2",
-    "prettier": "^3.6.2"
+    "msw": "^2.10.2",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
+    "zip-dir": "^2.0.0"
   },
   "dependencies": {
-    "@eslint/config-array": "^0.21.0",
-    "@eslint/object-schema": "^2.1.6",
-    "glob": "^11.0.3",
-    "rimraf": "^6.0.1"
+    "linkedom": "^0.18.11",
+    "p-queue": "^8.1.0"
   }
 }
