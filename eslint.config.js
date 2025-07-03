@@ -3,7 +3,9 @@ import globals from 'globals';
 
 export default [
   js.configs.recommended,
+  // Source files
   {
+    files: ['src/**/*.js'],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',
@@ -31,6 +33,36 @@ export default [
       // Performance
       'no-unused-expressions': 'error',
     },
+  },
+  // Test files with Node.js environment
+  {
+    files: ['tests/**/*.js', 'scripts/**/*.js', '*.config.js'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+        chrome: 'readonly',
+        vi: 'readonly',
+        expect: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-empty-pattern': 'warn',
+    },
+  },
+  // Common ignores
+  {
     ignores: ['node_modules/', 'dist/', 'releases/', 'build/'],
   },
 ];

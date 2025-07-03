@@ -52,6 +52,12 @@
       #search-button:hover {
         background-color: #2980b9;
       }
+      #search-button.stop-button {
+        background-color: #e74c3c;
+      }
+      #search-button.stop-button:hover {
+        background-color: #c0392b;
+      }
       #search-button:disabled {
         background-color: #bdc3c7;
         cursor: not-allowed;
@@ -179,26 +185,11 @@
     <div class="container">
       <h1>Search from<br />The Complete Works of Swami Vivekananda</h1>
       <form id="search-form" class="search-container">
-        <button type="submit" id="search-button"><span>Search</span></button>
-        <button type="button" id="stop-button" style="display: none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          </svg>
-        </button>
         <div class="input-wrapper">
           <div id="progress-bar"></div>
           <input type="text" id="search-input" placeholder="Enter search term" />
         </div>
+        <button type="submit" id="search-button"><span>Search</span></button>
       </form>
       <div id="results-counter"></div>
       <div id="results"></div>

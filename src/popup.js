@@ -25,72 +25,66 @@ function connectToBackground() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Establish connection to background script
   connectToBackground();
-  const searchInput = document.getElementById('search-input');
   const searchForm = document.getElementById('search-form');
+  const searchInput = document.getElementById('search-input');
   const searchButton = document.getElementById('search-button');
-  const stopButton = document.getElementById('stop-button');
-  const _searchButtonText = document.querySelector('#search-button span');
+  const searchButtonText = searchButton.querySelector('span');
   const resultsDiv = document.getElementById('results');
   const resultsCounter = document.getElementById('results-counter');
   const progressBar = document.getElementById('progress-bar');
   const loadingIndicator = document.querySelector('.loading-indicator');
   const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
   let resultsCount = 0;
+  let isSearching = false;
 
-  searchForm.addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevent default form submission
+  searchForm.addEventListener('submit', e => {
+    e.preventDefault();
+    startSearch();
+  });
+
+  searchButton.addEventListener('click', () => {
+    if (isSearching) {
+      stopSearch();
+    }
+  });
+
+  function startSearch() {
     const query = searchInput.value;
     if (query) {
+      isSearching = true;
       resultsCount = 0;
       resultsCounter.textContent = '';
       resultsDiv.innerHTML = '<p>Searching...</p>';
-      searchButton.style.display = 'none';
-      stopButton.style.display = 'flex';
+      searchButtonText.textContent = 'Stop';
+      searchButton.classList.add('stop-button');
       searchInput.disabled = true;
       progressBar.style.width = '0%';
       progressBar.style.backgroundImage =
         'repeating-linear-gradient(45deg, rgba(46, 204, 113, 0.3), rgba(46, 204, 113, 0.3) 10px, transparent 10px, transparent 20px)';
       loadingIndicator.style.display = 'flex';
-      // Try to send via port first, fallback to message
-      try {
-        if (port) {
-          port.postMessage({ action: 'search', query: query });
-        } else {
-          // Fallback to traditional messaging
-          chrome.runtime.sendMessage({ action: 'search', query: query });
-        }
-      } catch (error) {
-        // console.error('Error sending search message:', error);
-        // console.error('Error sending search message:', error);
-        // Try to reconnect
+      if (!port) {
         connectToBackground();
-        chrome.runtime.sendMessage({ action: 'search', query: query });
       }
+      port.postMessage({ action: 'search', query: query });
     }
-  });
+  }
 
-  stopButton.addEventListener('click', function () {
-    try {
-      if (port) {
-        port.postMessage({ action: 'stopSearch' });
-      } else {
-        chrome.runtime.sendMessage({ action: 'stopSearch' });
-      }
-    } catch (error) {
-      // console.error('Error sending stop message:', error);
-      // console.error('Error sending stop message:', error);
-      connectToBackground();
-      chrome.runtime.sendMessage({ action: 'stopSearch' });
+  function stopSearch() {
+    if (port) {
+      port.postMessage({ action: 'stopSearch' });
     }
-    searchButton.style.display = 'flex';
-    stopButton.style.display = 'none';
+  }
+
+  function resetUI() {
+    isSearching = false;
+    searchButtonText.textContent = 'Search';
+    searchButton.classList.remove('stop-button');
     loadingIndicator.style.display = 'none';
     searchInput.disabled = false;
     progressBar.style.width = '0';
     progressBar.style.backgroundImage = 'none';
-  });
+  }
 
   function displayResults(results) {
     if (results && results.length > 0) {
@@ -106,13 +100,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Define message handler function within DOMContentLoaded scope
-  // Assign to the outer scoped variable so port listeners can use it
   handleMessage = function (request) {
-    // console.log('Processing message:', request);
     if (request.action === 'searchResult') {
       if (resultsDiv.innerHTML === '<p>Searching...</p>') {
-        resultsDiv.innerHTML = ''; // Clear "Searching..." message
+        resultsDiv.innerHTML = '';
       }
       resultsCount += request.results.length;
       resultsCounter.textContent = `(${resultsCount} ${resultsCount === 1 ? 'result' : 'results'} found so far)`;
@@ -120,12 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } else if (request.action === 'searchProgress') {
       progressBar.style.width = `${request.progress}%`;
     } else if (request.action === 'searchComplete') {
-      searchButton.style.display = 'flex';
-      stopButton.style.display = 'none';
-      loadingIndicator.style.display = 'none';
-      searchInput.disabled = false;
-      progressBar.style.width = '0';
-      progressBar.style.backgroundImage = 'none';
+      resetUI();
       resultsCounter.textContent = `(${resultsCount} ${resultsCount === 1 ? 'result' : 'results'} found)`;
       if (resultsDiv.innerHTML === '<p>Searching...</p>' || resultsDiv.innerHTML === '') {
         resultsDiv.innerHTML = '<p>No results found.</p>';
@@ -133,13 +119,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  // Also keep the runtime message listener for backward compatibility
-  chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
-    // console.log('Runtime message received:', request);
-    handleMessage(request);
-  });
-
-  // Scroll to top button logic
   window.onscroll = function () {
     if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
       scrollToTopBtn.style.display = 'block';
@@ -149,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   scrollToTopBtn.addEventListener('click', function () {
-    document.body.scrollTop = 0; // For Safari
-    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
   });
 });
